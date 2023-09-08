@@ -34,7 +34,7 @@ from typing import (
 from myfuncs import runcmd
 
 from config import HOST, PORT
-from crud import create_user, get_user_with_email
+from crud import create_new_user, get_user_with_email
 from auth import verify_password, create_access_token
 from schemas import UserDB, Token, UserDBWithToken, UserCreate
 from db import get_db
@@ -84,18 +84,22 @@ oauth2_scheme = OAuth2PasswordBearer(tokenUrl="api/token")
 
 
 @app.post("/register", response_model=UserDB)
-async def create_user(
-    userdata: OAuth2PasswordRequestForm = Depends(),
-    db: AsyncSession = Depends(get_db),
-):
-    db_user = await get_user_with_email(db, userdata.username)
-    print(db_user)
+async def register_user(data: UserCreate, db: AsyncSession = Depends(get_db)):
+    email, password = data.email, data.password
+    print(f'email: {email}')
+    print(f'password: {password}')
+
+    db_user = await get_user_with_email(db, email)
+
     if db_user:
         raise HTTPException(status_code=400, detail="Email already registered")
-    return create_user(
-        db=db,
-        user=UserCreate(email=userdata.username, password=userdata.password),
-    )
+
+    newuser = UserCreate(email=email, password=password)
+    newuser = await create_new_user(
+        db, newuser
+    )  # Assuming your create_user function is asynchronous
+
+    return newuser
 
 
 @router.get("/openapi.json")

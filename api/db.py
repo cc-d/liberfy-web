@@ -20,6 +20,9 @@ async def get_db() -> AsyncSession:
         await session.close()
 
 
+from models import User
+
+
 def model_to_dict(
     model_instance: DeclarativeMeta, exclude_internal: bool = True
 ) -> dict:
