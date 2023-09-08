@@ -1,27 +1,23 @@
 # api/db.py
-from sqlalchemy import create_engine
-from sqlalchemy.ext.declarative import declarative_base
-from sqlalchemy.orm import (
-    sessionmaker,
-    class_mapper,
-    DeclarativeMeta,
-    Session,
-    DeclarativeBase,
-)
-
 from config import DATABASE_URL
+from sqlalchemy.ext.asyncio import AsyncSession, create_async_engine
+from sqlalchemy.ext.declarative import declarative_base
+from sqlalchemy.orm import sessionmaker, class_mapper, DeclarativeMeta, Session
 
 Base = declarative_base()
-engine = create_engine(DATABASE_URL, echo=True)
-SessionLocal = sessionmaker(bind=engine, autocommit=False, autoflush=False)
+AsyncSessionLocal = sessionmaker(
+    bind=create_async_engine(DATABASE_URL, echo=True),
+    class_=AsyncSession,
+    expire_on_commit=False,
+)
 
 
-def get_db():
-    db = SessionLocal()
+async def get_db() -> AsyncSession:
+    session = AsyncSessionLocal()
     try:
-        yield db
+        yield session
     finally:
-        db.close()
+        await session.close()
 
 
 def model_to_dict(
@@ -47,10 +43,3 @@ def model_to_dict(
         data.pop(attr, None)
 
     return data
-
-
-def add_commit_refresh(obj, db) -> DeclarativeBase:
-    db.add(obj)
-    db.commit()
-    db.refresh(obj)
-    return obj

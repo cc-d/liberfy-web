@@ -1,7 +1,8 @@
 # api/main.py
 from fastapi import FastAPI, Depends, HTTPException, status, APIRouter
 from fastapi.security import OAuth2PasswordRequestForm
-from sqlalchemy.orm import Session, joinedload, selectinload
+from sqlalchemy.orm import joinedload, selectinload
+from sqlalchemy.ext.asyncio import AsyncSession
 from datetime import timedelta
 from fastapi.openapi.utils import get_openapi
 from fastapi.middleware.cors import CORSMiddleware
@@ -33,7 +34,7 @@ from typing import (
 from myfuncs import runcmd
 
 from config import HOST, PORT
-from crud import create_user, get_by_email
+from crud import create_user, get_user_with_email
 from auth import verify_password, create_access_token
 from schemas import UserDB, Token, UserDBWithToken, UserCreate
 from db import get_db
@@ -83,23 +84,18 @@ oauth2_scheme = OAuth2PasswordBearer(tokenUrl="api/token")
 
 
 @app.post("/register", response_model=UserDB)
-async def create_user(user: UserCreate, db: Session = Depends(get_db)):
-    db_user = get_by_email(db, user.email)
+async def create_user(
+    userdata: OAuth2PasswordRequestForm = Depends(),
+    db: AsyncSession = Depends(get_db),
+):
+    db_user = await get_user_with_email(db, userdata.username)
+    print(db_user)
     if db_user:
         raise HTTPException(status_code=400, detail="Email already registered")
-    return create_user(db=db, user=user)
-
-
-@app.post("/token", response_model=Token)
-async def login(
-    form_data: OAuth2PasswordRequestForm = Depends(),
-    db: Session = Depends(get_db),
-):
-    user = get_by_email(db, form_data.username)
-    if not user or not verify_password(form_data.password, user.hpass):
-        raise HTTPException(status_code=400, detail="Invalid email or password")
-    access_token = create_access_token(data={"sub": user.email})
-    return {"access_token": access_token, "token_type": "bearer"}
+    return create_user(
+        db=db,
+        user=UserCreate(email=userdata.username, password=userdata.password),
+    )
 
 
 @router.get("/openapi.json")
