@@ -15,13 +15,16 @@ class UserCreate(UserBase):
     password: str
 
 
-class UserDB(UserBase):
+class UserOut(UserBase):
     id: int
-    hpass: str
+
+
+class UserDB(UserOut):
+    hpassword: str
 
     class Config:
         orm_mode = True
 
 
-class UserDBWithToken(UserDB):
+class UserOutToken(UserOut):
     token: Token

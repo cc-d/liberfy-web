@@ -1,5 +1,6 @@
 # api/db.py
 from config import DATABASE_URL
+from fastapi import Depends
 from sqlalchemy.ext.asyncio import AsyncSession, create_async_engine
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker, class_mapper, DeclarativeMeta, Session
@@ -18,9 +19,6 @@ async def get_db() -> AsyncSession:
         yield session
     finally:
         await session.close()
-
-
-from models import User
 
 
 def model_to_dict(
@@ -46,3 +44,15 @@ def model_to_dict(
         data.pop(attr, None)
 
     return data
+
+
+async def async_add_com_ref(
+    model: DeclarativeMeta, db=Depends(get_db)
+) -> DeclarativeMeta:
+    """Add a model instance to the database and return the instance with
+    the database-generated id
+    """
+    db.add(model)
+    await db.commit()
+    await db.refresh(model)
+    return model

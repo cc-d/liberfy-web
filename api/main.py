@@ -34,9 +34,9 @@ from typing import (
 from myfuncs import runcmd
 
 from config import HOST, PORT
-from crud import create_new_user, get_user_with_email
+from crud import create_new_user, user_from_token, user_from_email
 from auth import verify_password, create_access_token
-from schemas import UserDB, Token, UserDBWithToken, UserCreate
+from schemas import UserDB, Token, UserOutToken, UserOut, UserCreate
 from db import get_db
 
 
@@ -80,26 +80,47 @@ async def hello():
     return {"status": "ok"}
 
 
-oauth2_scheme = OAuth2PasswordBearer(tokenUrl="api/token")
-
-
-@app.post("/register", response_model=UserDB)
+@app.post("/user/create", response_model=UserOutToken)
 async def register_user(data: UserCreate, db: AsyncSession = Depends(get_db)):
     email, password = data.email, data.password
     print(f'email: {email}')
     print(f'password: {password}')
 
-    db_user = await get_user_with_email(db, email)
+    db_user = await user_from_email(email, db)
 
     if db_user:
         raise HTTPException(status_code=400, detail="Email already registered")
 
-    newuser = UserCreate(email=email, password=password)
     newuser = await create_new_user(
-        db, newuser
+        email, password, db
     )  # Assuming your create_user function is asynchronous
 
-    return newuser
+    utoken = Token(access_token=create_access_token(newuser.email))
+
+    userout = UserOutToken(**newuser.__dict__, token=utoken)
+
+    print(userout)
+    return userout
+
+
+@app.post("/user/login", response_model=Token)
+async def token_from_login(
+    form_data: OAuth2PasswordRequestForm = Depends(),
+    db: AsyncSession = Depends(get_db),
+):
+    user = await user_from_email(form_data.username, db=db)
+    if not user:
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Incorrect email or password",
+        )
+    if not verify_password(form_data.password, user.hpassword):
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Incorrect email or password",
+        )
+    access_token = create_access_token(user.email)
+    return Token(access_token=access_token)
 
 
 @router.get("/openapi.json")
