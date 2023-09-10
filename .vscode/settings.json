@@ -3,4 +3,5 @@
         "./api"
     ],
     "python.defaultInterpreterPath": "./api/venv/bin/python",
+    "git.ignoreLimitWarning": true,
 }

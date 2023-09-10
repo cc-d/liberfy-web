@@ -1,6 +1,6 @@
 #!/bin/sh
 ROOTDIR="$HOME/liberfy-web"
-FRONTDIR="$ROOTDIR/libai-frontend"
+FRONTDIR="$ROOTDIR/libaifrontend"
 APIDIR="$ROOTDIR/api"
 
 echo $ROOTDIR $APIDIR $FRONTDIR
@@ -9,7 +9,7 @@ alias gentypes="npx openapi-typescript-codegen generate --exportSchemas true --i
 
 npmapi() {
     gentypes
-    cd $FRONTDIR && npm start
+    cd $FRONTDIR && PORT=3333 npm start
 }
 
 

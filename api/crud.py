@@ -11,9 +11,9 @@ from schemas import UserDB, UserCreate
 from auth import get_password_hash, oauth2_scheme
 
 
-async def user_from_token(
+async def get_current_user(
     token: str = Depends(oauth2_scheme), db: AsyncSession = Depends(get_db)
-) -> User:
+) -> UserDB:
     try:
         payload = jwt.decode(token, JWT_SECRET, algorithms=[JWT_ALGORITHM])
     except PyJWTError as e:
@@ -37,6 +37,7 @@ async def user_from_token(
             detail="Invalid auth credentials no user",
             headers={"WWW-Authenticate": "Bearer"},
         )
+    return UserDB(**user.__dict__)
 
 
 async def create_new_user(

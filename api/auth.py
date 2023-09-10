@@ -17,7 +17,7 @@ from config import JWT_SECRET, JWT_ALGORITHM, JWT_EXPIRE_SECS
 
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 
-oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/user/token")
+oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/user/tokenlogin")
 
 
 def verify_password(plain_password, hashed_password):

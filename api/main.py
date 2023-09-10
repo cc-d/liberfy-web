@@ -34,7 +34,7 @@ from typing import (
 from myfuncs import runcmd
 
 from config import HOST, PORT
-from crud import create_new_user, user_from_token, user_from_email
+from crud import create_new_user, get_current_user, user_from_email
 from auth import verify_password, create_access_token
 from schemas import UserDB, Token, UserOutToken, UserOut, UserCreate
 from db import get_db
@@ -103,7 +103,7 @@ async def register_user(data: UserCreate, db: AsyncSession = Depends(get_db)):
     return userout
 
 
-@app.post("/user/login", response_model=Token)
+@app.post("/user/tokenlogin", response_model=Token)
 async def token_from_login(
     form_data: OAuth2PasswordRequestForm = Depends(),
     db: AsyncSession = Depends(get_db),
@@ -121,6 +121,14 @@ async def token_from_login(
         )
     access_token = create_access_token(user.email)
     return Token(access_token=access_token)
+
+
+@app.get("/user/me", response_model=UserOut)
+async def read_users_me(
+    current_user: UserDB = Depends(get_current_user),
+    db: AsyncSession = Depends(get_db),
+):
+    return current_user
 
 
 @router.get("/openapi.json")
