@@ -7,6 +7,15 @@ class Token(BaseModel):
     token_type: str = 'bearer'
 
 
+class TokenLogin(BaseModel):
+    username: str
+    password: str
+    grant_type: str = 'password'
+    scope: str = ''
+    client_id: str = ''
+    client_secret: str = ''
+
+
 class UserBase(BaseModel):
     email: str
 

@@ -1,6 +1,6 @@
 # api/main.py
+from typing import Union, Optional
 from fastapi import FastAPI, Depends, HTTPException, status, APIRouter
-from fastapi.security import OAuth2PasswordRequestForm
 from sqlalchemy.orm import joinedload, selectinload
 from sqlalchemy.ext.asyncio import AsyncSession
 from datetime import timedelta
@@ -11,8 +11,8 @@ from fastapi.security import (
     OAuth2PasswordRequestForm,
     OAuth2PasswordBearer,
 )
+
 from fastapi.responses import Response
-from fastapi.openapi.models import OAuthFlowAuthorizationCode
 
 from starlette.middleware import Middleware
 from starlette.middleware.cors import CORSMiddleware
@@ -35,8 +35,9 @@ from myfuncs import runcmd
 
 from config import HOST, PORT
 from crud import create_new_user, get_current_user, user_from_email
+from dependencies import get_current_user, get_tokenlogin_user
 from auth import verify_password, create_access_token
-from schemas import UserDB, Token, UserOutToken, UserOut, UserCreate
+from schemas import UserDB, Token, UserOutToken, UserOut, UserCreate, TokenLogin
 from db import get_db
 
 
@@ -105,21 +106,10 @@ async def register_user(data: UserCreate, db: AsyncSession = Depends(get_db)):
 
 @app.post("/user/tokenlogin", response_model=Token)
 async def token_from_login(
-    form_data: OAuth2PasswordRequestForm = Depends(),
+    tokuser: UserDB = Depends(get_tokenlogin_user),
     db: AsyncSession = Depends(get_db),
 ):
-    user = await user_from_email(form_data.username, db=db)
-    if not user:
-        raise HTTPException(
-            status_code=status.HTTP_401_UNAUTHORIZED,
-            detail="Incorrect email or password",
-        )
-    if not verify_password(form_data.password, user.hpassword):
-        raise HTTPException(
-            status_code=status.HTTP_401_UNAUTHORIZED,
-            detail="Incorrect email or password",
-        )
-    access_token = create_access_token(user.email)
+    access_token = create_access_token(tokuser.email)
     return Token(access_token=access_token)
 
 

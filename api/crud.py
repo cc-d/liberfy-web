@@ -11,6 +11,29 @@ from schemas import UserDB, UserCreate
 from auth import get_password_hash, oauth2_scheme
 
 
+async def create_new_user(
+    email: str, password: str, db: AsyncSession = Depends(get_db)
+) -> User:
+    st = select(User).where(User.email == email)
+    result = await db.execute(st)
+
+    if result.scalars().one_or_none() is not None:
+        raise Exception('user already exists')
+
+    hpass = get_password_hash(password)
+
+    db_user = User(email=email, hpassword=hpass)
+    db_user = await async_add_com_ref(db_user, db)
+    return db_user
+
+
+async def user_from_email(
+    email: str, db: AsyncSession = Depends(get_db)
+) -> User | None:
+    result = await db.execute(select(User).where(User.email == email))
+    return result.scalars().one_or_none()
+
+
 async def get_current_user(
     token: str = Depends(oauth2_scheme), db: AsyncSession = Depends(get_db)
 ) -> UserDB:
@@ -38,26 +61,3 @@ async def get_current_user(
             headers={"WWW-Authenticate": "Bearer"},
         )
     return UserDB(**user.__dict__)
-
-
-async def create_new_user(
-    email: str, password: str, db: AsyncSession = Depends(get_db)
-) -> User:
-    st = select(User).where(User.email == email)
-    result = await db.execute(st)
-
-    if result.scalars().one_or_none() is not None:
-        raise Exception('user already exists')
-
-    hpass = get_password_hash(password)
-
-    db_user = User(email=email, hpassword=hpass)
-    db_user = await async_add_com_ref(db_user, db)
-    return db_user
-
-
-async def user_from_email(
-    email: str, db: AsyncSession = Depends(get_db)
-) -> User | None:
-    result = await db.execute(select(User).where(User.email == email))
-    return result.scalars().one_or_none()
