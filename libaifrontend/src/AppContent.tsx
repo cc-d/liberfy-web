@@ -1,22 +1,27 @@
 // AppContent.tsx
 import React from 'react';
 import { useAuth } from './AuthContext';
-import LoginPage from './LoginPage';
+import LoginPage from './Pages/LoginPage';
 const AppContent: React.FC = () => {
-  const { isLoggedIn, isLoading } = useAuth();
+  const { user, userLoading } = useAuth();
 
-  if (isLoading) {
+  if (userLoading) {
     return <div>Loading...</div>;
   }
 
-  if (!isLoggedIn) {
+  if (!user && !userLoading) {
     return (
         <LoginPage />
     );
   }
 
   // This is where your main content would go after a user is logged in.
-  return <div>Welcome, user!</div>;
+  return (
+    <>
+      <h1>Logged in as {user?.email}</h1>
+    </>
+  )
+
 };
 
 export default AppContent;

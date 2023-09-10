@@ -1,44 +1,41 @@
 # api/main.py
-from typing import Union, Optional
-from fastapi import FastAPI, Depends, HTTPException, status, APIRouter
-from sqlalchemy.orm import joinedload, selectinload
-from sqlalchemy.ext.asyncio import AsyncSession
 from datetime import timedelta
-from fastapi.openapi.utils import get_openapi
-from fastapi.middleware.cors import CORSMiddleware
-from fastapi.security import (
-    OAuth2AuthorizationCodeBearer,
-    OAuth2PasswordRequestForm,
-    OAuth2PasswordBearer,
-)
-
-from fastapi.responses import Response
-
-from starlette.middleware import Middleware
-from starlette.middleware.cors import CORSMiddleware
-from starlette.middleware.base import BaseHTTPMiddleware
-from starlette.types import ASGIApp
 from typing import (
+    Any,
+    Callable,
+    Dict,
+    Generic,
     List,
     Optional,
-    Dict,
-    Any,
-    Union,
-    TypeVar,
-    Generic,
     Type,
-    Callable,
+    TypeVar,
+    Union,
 )
 
-
+from fastapi import APIRouter, Depends, FastAPI, HTTPException, status
+from fastapi.middleware.cors import CORSMiddleware
+from fastapi.openapi.utils import get_openapi
+from fastapi.responses import Response
+from fastapi.security import (
+    OAuth2AuthorizationCodeBearer,
+    OAuth2PasswordBearer,
+    OAuth2PasswordRequestForm,
+)
+from logfunc import logf
 from myfuncs import runcmd
+from schemas import Token, TokenLogin, UserCreate, UserDB, UserOut, UserOutToken
+from sqlalchemy.ext.asyncio import AsyncSession
+from sqlalchemy.orm import joinedload, selectinload
+from starlette.middleware import Middleware
+from starlette.middleware.base import BaseHTTPMiddleware
+from starlette.middleware.cors import CORSMiddleware
+from starlette.types import ASGIApp
 
+from auth import create_access_token, verify_password
 from config import HOST, PORT
 from crud import create_new_user, get_current_user, user_from_email
-from dependencies import get_current_user, get_tokenlogin_user
-from auth import verify_password, create_access_token
-from schemas import UserDB, Token, UserOutToken, UserOut, UserCreate, TokenLogin
 from db import get_db
+from dependencies import get_current_user, get_tokenlogin_user
 
 
 # Content Security Policy Middleware
@@ -100,7 +97,6 @@ async def register_user(data: UserCreate, db: AsyncSession = Depends(get_db)):
 
     userout = UserOutToken(**newuser.__dict__, token=utoken)
 
-    print(userout)
     return userout
 
 
@@ -117,7 +113,7 @@ async def token_from_login(
 async def read_users_me(
     current_user: UserDB = Depends(get_current_user),
     db: AsyncSession = Depends(get_db),
-):
+) -> UserOut:
     return current_user
 
 

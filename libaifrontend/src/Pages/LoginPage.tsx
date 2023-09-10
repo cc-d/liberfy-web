@@ -1,7 +1,8 @@
 // src/LoginPage.tsx
 
 import React, { useState } from 'react';
-import apiois from './apios';  // Assuming you have apiois set up at this path
+import { redirect } from 'react-router-dom';
+import apiois from '../apios';  // Assuming you have apiois set up at this path
 import {
   TextField,
   Button,
@@ -9,6 +10,7 @@ import {
   Grid,
   Typography,
 } from '@mui/material';
+import { UserOutToken } from '../api';
 
 const LoginPage: React.FC = () => {
   const [loginData, setLoginData] = useState({ username: '', password: '' });
@@ -34,7 +36,7 @@ const LoginPage: React.FC = () => {
       });
       const token = response.data.access_token;
       localStorage.setItem('jwt_token', token);
-      // Redirect to dashboard or wherever you want to go after login
+      redirect('/');  // Redirect to the home page
     } catch (error: any) {
       console.error("Error logging in:", error.response.data);
     }
@@ -43,8 +45,12 @@ const LoginPage: React.FC = () => {
   const handleRegisterSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     try {
-      await apiois.post('/user/create', registerData);
-      // Possibly automatically log the user in or redirect to the login page
+      const resp = await apiois.post('/user/create', registerData);
+      if (resp.status == 201 || resp.status == 200) {
+        const userWithToken = resp.data as UserOutToken;
+        localStorage.setItem('jwt_token', userWithToken.token.access_token);
+        redirect('/');  // Redirect to the home page
+      }
     } catch (error: any) {
       console.error("Error registering:", error.response.data);
     }

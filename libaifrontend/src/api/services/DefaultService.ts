@@ -2,7 +2,6 @@
 /* istanbul ignore file */
 /* tslint:disable */
 /* eslint-disable */
-import type { Body_token_from_login_user_tokenlogin_post } from '../models/Body_token_from_login_user_tokenlogin_post';
 import type { Token } from '../models/Token';
 import type { UserCreate } from '../models/UserCreate';
 import type { UserOut } from '../models/UserOut';
@@ -36,21 +35,13 @@ export class DefaultService {
 
     /**
      * Token From Login
-     * @param formData
      * @returns Token Successful Response
      * @throws ApiError
      */
-    public static tokenFromLoginUserTokenloginPost(
-        formData: Body_token_from_login_user_tokenlogin_post,
-    ): CancelablePromise<Token> {
+    public static tokenFromLoginUserTokenloginPost(): CancelablePromise<Token> {
         return __request(OpenAPI, {
             method: 'POST',
             url: '/user/tokenlogin',
-            formData: formData,
-            mediaType: 'application/x-www-form-urlencoded',
-            errors: {
-                422: `Validation Error`,
-            },
         });
     }
 
