@@ -2,7 +2,7 @@
 import jwt
 from typing import Union, Optional
 from jwt import PyJWTError
-from fastapi import Depends, HTTPException
+from fastapi import Depends, HTTPException, Request
 from sqlalchemy import select
 from config import JWT_ALGORITHM, JWT_SECRET, JWT_EXPIRE_SECS
 from db import AsyncSession, get_db, async_add_com_ref
@@ -40,10 +40,6 @@ async def get_current_user(
             headers={"WWW-Authenticate": "Bearer"},
         )
     return UserDB(**user.__dict__)
-
-
-from fastapi import Request
-from pydantic import ValidationError
 
 
 async def get_login_data(

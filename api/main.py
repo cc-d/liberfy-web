@@ -23,7 +23,6 @@ from fastapi.security import (
 )
 from logfunc import logf
 from myfuncs import runcmd
-from schemas import Token, TokenLogin, UserCreate, UserDB, UserOut, UserOutToken
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import joinedload, selectinload
 from starlette.middleware import Middleware
@@ -36,6 +35,7 @@ from config import HOST, PORT
 from crud import create_new_user, get_current_user, user_from_email
 from db import get_db
 from dependencies import get_current_user, get_tokenlogin_user
+from schemas import Token, TokenLogin, UserCreate, UserDB, UserOut, UserOutToken
 
 
 # Content Security Policy Middleware
@@ -70,51 +70,13 @@ app.add_middleware(CSPMiddleware)
 
 router = APIRouter()
 
+
 print("loading routes")
 
 
 @router.get("/")
 async def hello():
     return {"status": "ok"}
-
-
-@app.post("/user/create", response_model=UserOutToken)
-async def register_user(data: UserCreate, db: AsyncSession = Depends(get_db)):
-    email, password = data.email, data.password
-    print(f'email: {email}')
-    print(f'password: {password}')
-
-    db_user = await user_from_email(email, db)
-
-    if db_user:
-        raise HTTPException(status_code=400, detail="Email already registered")
-
-    newuser = await create_new_user(
-        email, password, db
-    )  # Assuming your create_user function is asynchronous
-
-    utoken = Token(access_token=create_access_token(newuser.email))
-
-    userout = UserOutToken(**newuser.__dict__, token=utoken)
-
-    return userout
-
-
-@app.post("/user/tokenlogin", response_model=Token)
-async def token_from_login(
-    tokuser: UserDB = Depends(get_tokenlogin_user),
-    db: AsyncSession = Depends(get_db),
-):
-    access_token = create_access_token(tokuser.email)
-    return Token(access_token=access_token)
-
-
-@app.get("/user/me", response_model=UserOut)
-async def read_users_me(
-    current_user: UserDB = Depends(get_current_user),
-    db: AsyncSession = Depends(get_db),
-) -> UserOut:
-    return current_user
 
 
 @router.get("/openapi.json")
@@ -125,6 +87,11 @@ async def get_openapi_schema():
 
 
 app.include_router(router)
+
+from api.routers import urouter, prouter
+
+for rter in (urouter, prouter):
+    app.include_router(rter)
 
 
 if (__name__) == "__main__":
