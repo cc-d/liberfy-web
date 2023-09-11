@@ -29,7 +29,7 @@ const LoginPage: React.FC = () => {
   const handleLoginSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     try {
-      const response = await apiois.post('/user/tokenlogin', {
+      const response = await apiois.post('/u/tokenlogin', {
         grant_type: 'password',
         username: loginData.username,
         password: loginData.password,
@@ -45,7 +45,7 @@ const LoginPage: React.FC = () => {
   const handleRegisterSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     try {
-      const resp = await apiois.post('/user/new', registerData);
+      const resp = await apiois.post('/u/new', registerData);
       if (resp.status == 201 || resp.status == 200) {
         const userWithToken = resp.data as UserOutToken;
         localStorage.setItem('jwt_token', userWithToken.token.access_token);

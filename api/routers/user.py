@@ -18,7 +18,7 @@ from schemas import (
 )
 from models import User
 
-urouter = APIRouter(prefix='/user', tags=['user'])
+urouter = APIRouter(prefix='/u', tags=['user'])
 
 
 @urouter.post("/new", response_model=UserOutToken)

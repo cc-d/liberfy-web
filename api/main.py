@@ -1,4 +1,3 @@
-# api/main.py
 from datetime import timedelta
 from typing import (
     Any,
@@ -88,9 +87,9 @@ async def get_openapi_schema():
 
 app.include_router(router)
 
-from routers import urouter, prouter
+from routers import APIROUTERS
 
-for rter in (urouter, prouter):
+for rter in APIROUTERS:
     app.include_router(rter)
 
 

@@ -30,7 +30,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({
   useEffect(() => {
     const token = localStorage.getItem("jwt_token");
     if (token) {
-      apios.get("/user/me")
+      apios.get("/u/me")
         .then((resp: AxiosResponse) => {
           setUser(resp.data);
         })

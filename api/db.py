@@ -1,4 +1,3 @@
-# api/db.py
 from config import DATABASE_URL
 from fastapi import Depends
 from sqlalchemy.ext.asyncio import AsyncSession, create_async_engine

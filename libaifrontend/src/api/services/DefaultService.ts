@@ -24,7 +24,7 @@ export class DefaultService {
     ): CancelablePromise<UserOutToken> {
         return __request(OpenAPI, {
             method: 'POST',
-            url: '/user/create',
+            url: '/u/create',
             body: requestBody,
             mediaType: 'application/json',
             errors: {
@@ -41,7 +41,7 @@ export class DefaultService {
     public static tokenFromLoginUserTokenloginPost(): CancelablePromise<Token> {
         return __request(OpenAPI, {
             method: 'POST',
-            url: '/user/tokenlogin',
+            url: '/u/tokenlogin',
         });
     }
 
@@ -53,7 +53,7 @@ export class DefaultService {
     public static readUsersMeUserMeGet(): CancelablePromise<UserOut> {
         return __request(OpenAPI, {
             method: 'GET',
-            url: '/user/me',
+            url: '/u/me',
         });
     }
 

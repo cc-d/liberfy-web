@@ -32,6 +32,10 @@ class User(Base):
         'Project', back_populates='user'
     )
 
+    syncdirs: Mapped[list['SyncDir']] = relationship(
+        'SyncDir', back_populates='user'
+    )
+
 
 class Project(Base):
     __tablename__ = 'projects'
@@ -66,6 +70,7 @@ class SyncDir(Base):
     )
     path: Mapped[str] = mapped_column(String, nullable=False)
     project_id: Mapped[str] = mapped_column(String, ForeignKey('projects.id'))
+    user_id: Mapped[str] = mapped_column(String, ForeignKey('users.id'))
 
     # Many-to-One relationship with Project
     project: Mapped[Project] = relationship(
@@ -76,6 +81,8 @@ class SyncDir(Base):
     dirfiles: Mapped[list['DirFile']] = relationship(
         'DirFile', back_populates='syncdir'
     )
+
+    user: Mapped[User] = relationship('User', back_populates='syncdirs')
 
 
 class DirFile(Base):

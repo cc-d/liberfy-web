@@ -27,7 +27,7 @@ from schemas import (
     ProjectDB,
 )
 
-prouter = APIRouter(prefix='/project', tags=['project'])
+prouter = APIRouter(prefix='/p', tags=['project'])
 
 
 @prouter.post("/new", response_model=ProjectOut)

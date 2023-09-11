@@ -1,4 +1,3 @@
-# api/schemas.py
 from config import DEFAULTS as DEFS
 from pydantic import BaseModel, Field
 
@@ -65,7 +64,7 @@ class ProjectDB(ProjectOut):
         orm_mode = True
 
 
-# SyncDir
+# SyncDir / DirFile
 class SyncDirBase(BaseModel):
     path: str
 
@@ -74,19 +73,6 @@ class SyncDirCreate(SyncDirBase):
     project_id: str
 
 
-class SyncDirOut(SyncDirCreate):
-    id: str
-    dirfiles: list['DirFileDB']
-
-
-class SyncDirDB(SyncDirOut):
-    project: ProjectDB
-
-    class Config:
-        orm_mode = True
-
-
-# DirFile
 class DirFileBase(BaseModel):
     relpath: str
     content: str | None
@@ -100,6 +86,19 @@ class DirFileCreate(DirFileBase):
 
 class DirFileOut(DirFileCreate):
     id: str
+
+
+class SyncDirOut(SyncDirCreate):
+    id: str
+    dirfiles: list[DirFileOut]
+    user_id: str
+
+
+class SyncDirDB(SyncDirOut):
+    project: ProjectDB
+
+    class Config:
+        orm_mode = True
 
 
 class DirFileDB(DirFileOut):

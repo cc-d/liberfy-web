@@ -1,4 +1,3 @@
-# api/auth.py
 import jwt
 import logfunc
 from fastapi.security import (
@@ -17,7 +16,7 @@ from config import JWT_SECRET, JWT_ALGORITHM, JWT_EXPIRE_SECS
 
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 
-oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/user/tokenlogin")
+oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/u/tokenlogin")
 
 
 def verify_password(plain_password, hashed_password):

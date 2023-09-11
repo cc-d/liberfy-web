@@ -1,4 +1,3 @@
-# api/dependencies.py
 import jwt
 from typing import Union, Optional
 from jwt import PyJWTError
@@ -21,6 +20,10 @@ from schemas import (
     ProjectOut,
     SyncDirDB,
     DirFileDB,
+    SyncDirBase,
+    SyncDirCreate,
+    DirFileBase,
+    SyncDirOut,
 )
 from auth import get_password_hash, oauth2_scheme, verify_password
 
@@ -130,3 +133,23 @@ async def get_proj_from_id(
     elif project.user_id != user_id:
         raise HTTPException(status_code=401, detail="Not authorized")
     return project
+
+
+@logf()
+async def get_syncdir_from_id(
+    project_id: str,
+    syncdir_id: str,
+    user_id: str = Depends(get_curuser_id),
+    db: AsyncSession = Depends(get_db),
+) -> SyncDir:
+    syncdir = await db.execute(
+        select(SyncDir)
+        .where(SyncDir.id == syncdir_id)
+        .where(SyncDir.project_id == project_id)
+    )
+    syncdir = syncdir.scalars().one_or_none()
+    if syncdir is None:
+        raise HTTPException(status_code=404, detail="SyncDir not found")
+    elif syncdir.user_id != user_id:
+        raise HTTPException(status_code=401, detail="Not authorized")
+    return syncdir
