@@ -20,7 +20,7 @@ class User(Base):
     id: Mapped[str] = mapped_column(
         String,
         primary_key=True,
-        default=str(uuid.uuid4()),
+        default=str(uuid.uuid4),
         unique=True,
         nullable=False,
     )
@@ -38,7 +38,7 @@ class Project(Base):
     id: Mapped[str] = mapped_column(
         String,
         primary_key=True,
-        default=str(uuid.uuid4()),
+        default=str(uuid.uuid4),
         unique=True,
         nullable=False,
     )
@@ -50,17 +50,17 @@ class Project(Base):
     user: Mapped[User] = relationship('User', back_populates='projects')
 
     # One-to-Many relationship with SyncDir
-    sync_dirs: Mapped[list['SyncDir']] = relationship(
+    syncdirs: Mapped[list['SyncDir']] = relationship(
         'SyncDir', back_populates='project'
     )
 
 
 class SyncDir(Base):
-    __tablename__ = 'sync_dirs'
+    __tablename__ = 'syncdirs'
     id: Mapped[str] = mapped_column(
         String,
         primary_key=True,
-        default=str(uuid.uuid4()),
+        default=str(uuid.uuid4),
         unique=True,
         nullable=False,
     )
@@ -69,12 +69,12 @@ class SyncDir(Base):
 
     # Many-to-One relationship with Project
     project: Mapped[Project] = relationship(
-        'Project', back_populates='sync_dirs'
+        'Project', back_populates='syncdirs'
     )
 
     # One-to-Many relationship with DirFile
     dirfiles: Mapped[list['DirFile']] = relationship(
-        'DirFile', back_populates='sync_dir'
+        'DirFile', back_populates='syncdir'
     )
 
 
@@ -83,16 +83,21 @@ class DirFile(Base):
     id: Mapped[str] = mapped_column(
         String,
         primary_key=True,
-        default=str(uuid.uuid4()),
+        default=str(uuid.uuid4),
         unique=True,
         nullable=False,
     )
     relpath: Mapped[str] = mapped_column(String, nullable=False)
     content: Mapped[str] = mapped_column(String, nullable=True)
-    sync_dir_id: Mapped[str] = mapped_column(String, ForeignKey('sync_dirs.id'))
+    syncdir_id: Mapped[str] = mapped_column(String, ForeignKey('syncdirs.id'))
     checksum: Mapped[str] = mapped_column(String, nullable=True)
     checksum_type: Mapped[str] = mapped_column(
         String, nullable=False, default='md5'
+    )
+
+    # Many-to-One relationship with SyncDir
+    syncdir: Mapped[SyncDir] = relationship(
+        'SyncDir', back_populates='dirfiles'
     )
 
 

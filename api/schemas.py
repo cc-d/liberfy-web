@@ -1,4 +1,5 @@
 # api/schemas.py
+from config import DEFAULTS as DEFS
 from pydantic import BaseModel, Field
 
 
@@ -22,7 +23,7 @@ class UserBase(BaseModel):
     email: str
 
 
-class UserCreate(UserBase):
+class UserNew(UserBase):
     password: str
 
 
@@ -44,21 +45,21 @@ class UserOutToken(UserOut):
 
 # Project
 class ProjectBase(BaseModel):
-    name: str
-
-
-class ProjectCreate(ProjectBase):
     pass
 
 
-class ProjectOut(ProjectBase):
+class ProjectNew(ProjectBase):
+    name: str = DEFS.PROJECT_NAME
+
+
+class ProjectOut(ProjectNew):
     id: str
     user_id: str
 
 
 class ProjectDB(ProjectOut):
     user: UserDB
-    sync_dirs: list['SyncDirDB']
+    syncdirs: list['SyncDirDB'] = []
 
     class Config:
         orm_mode = True
@@ -92,7 +93,7 @@ class DirFileBase(BaseModel):
 
 
 class DirFileCreate(DirFileBase):
-    sync_dir_id: str
+    syncdir_id: str
     checksum: str
     checksum_type: str = 'md5'
 
@@ -102,7 +103,7 @@ class DirFileOut(DirFileCreate):
 
 
 class DirFileDB(DirFileOut):
-    sync_dir: SyncDirDB
+    syncdir: SyncDirDB
 
     class Config:
         orm_mode = True

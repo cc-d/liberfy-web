@@ -13,6 +13,9 @@
         "--port",
         "8888"
       ],
+      "env": {
+        "LOGF_USE_PRINT": "True",
+      },
       "cwd": "${workspaceFolder}/api"
     },
   ]

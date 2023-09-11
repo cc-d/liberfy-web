@@ -5,3 +5,7 @@ JWT_ALGORITHM = "HS256"
 JWT_EXPIRE_SECS = 60 * 60 * 2  # 2 hours
 HOST = "localhost"
 PORT = 8888
+
+
+class DEFAULTS:
+    PROJECT_NAME = "New Project"

@@ -2,7 +2,7 @@
 /* istanbul ignore file */
 /* tslint:disable */
 /* eslint-disable */
-export const $UserCreate = {
+export const $UserNew = {
     properties: {
         email: {
             type: 'string',

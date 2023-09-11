@@ -12,6 +12,9 @@ npmapi() {
     cd $FRONTDIR && PORT=3333 npm start
 }
 
+ALEMBIC_AUTOGEN_CMD="alembic revision --autogenerate && alembic upgrade head"
+alias automigrate="cd $APIDIR && $ALEMBIC_AUTOGEN_CMD"
+
 
 if [ -d "$HOME/.pyenv" ]; then
     pyenv local 3.11

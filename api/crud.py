@@ -3,15 +3,15 @@ import jwt
 from jwt import PyJWTError
 from fastapi import Depends, HTTPException
 from sqlalchemy import select
-from config import JWT_ALGORITHM, JWT_SECRET, JWT_EXPIRE_SECS
+from config import JWT_ALGORITHM, JWT_SECRET, JWT_EXPIRE_SECS, DEFAULTS as DEFS
 from db import AsyncSession, get_db, async_add_com_ref
-
-from models import User
-from schemas import UserDB, UserCreate
+from dependencies import get_curuser, get_curuser_id
+from models import User, Project
+from schemas import ProjectNew, ProjectDB
 from auth import get_password_hash, oauth2_scheme
 
 
-async def create_new_user(
+async def new_user(
     email: str, password: str, db: AsyncSession = Depends(get_db)
 ) -> User:
     st = select(User).where(User.email == email)
@@ -27,37 +27,11 @@ async def create_new_user(
     return db_user
 
 
-async def user_from_email(
-    email: str, db: AsyncSession = Depends(get_db)
-) -> User | None:
-    result = await db.execute(select(User).where(User.email == email))
-    return result.scalars().one_or_none()
-
-
-async def get_current_user(
-    token: str = Depends(oauth2_scheme), db: AsyncSession = Depends(get_db)
-) -> UserDB:
-    try:
-        payload = jwt.decode(token, JWT_SECRET, algorithms=[JWT_ALGORITHM])
-    except PyJWTError as e:
-        raise HTTPException(
-            status_code=401,
-            detail=f"Invalid auth credentials JWT error: {e}",
-            headers={"WWW-Authenticate": "Bearer"},
-        )
-
-    email: str = payload.get("sub", None)
-    if email is None:
-        raise HTTPException(
-            status_code=401,
-            detail="Invalid auth credentials no email",
-            headers={"WWW-Authenticate": "Bearer"},
-        )
-    user = await user_from_email(email, db)
-    if user is None:
-        raise HTTPException(
-            status_code=401,
-            detail="Invalid auth credentials no user",
-            headers={"WWW-Authenticate": "Bearer"},
-        )
-    return UserDB(**user.__dict__)
+async def new_project(
+    name: str = DEFS.PROJECT_NAME,
+    user_id: str = Depends(get_curuser_id),
+    db: AsyncSession = Depends(get_db),
+) -> ProjectDB:
+    db_project = Project(name=name, user_id=user_id)
+    db_project = await async_add_com_ref(db_project, db)
+    return db_project

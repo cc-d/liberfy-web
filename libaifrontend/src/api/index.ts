@@ -9,14 +9,14 @@ export type { OpenAPIConfig } from './core/OpenAPI';
 
 export type { HTTPValidationError } from './models/HTTPValidationError';
 export type { Token } from './models/Token';
-export type { UserCreate } from './models/UserCreate';
+export type { UserNew } from './models/UserNew';
 export type { UserOut } from './models/UserOut';
 export type { UserOutToken } from './models/UserOutToken';
 export type { ValidationError } from './models/ValidationError';
 
 export { $HTTPValidationError } from './schemas/$HTTPValidationError';
 export { $Token } from './schemas/$Token';
-export { $UserCreate } from './schemas/$UserCreate';
+export { $UserNew } from './schemas/$UserNew';
 export { $UserOut } from './schemas/$UserOut';
 export { $UserOutToken } from './schemas/$UserOutToken';
 export { $ValidationError } from './schemas/$ValidationError';

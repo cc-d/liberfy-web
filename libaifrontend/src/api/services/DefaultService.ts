@@ -3,7 +3,7 @@
 /* tslint:disable */
 /* eslint-disable */
 import type { Token } from '../models/Token';
-import type { UserCreate } from '../models/UserCreate';
+import type { UserNew } from '../models/UserNew';
 import type { UserOut } from '../models/UserOut';
 import type { UserOutToken } from '../models/UserOutToken';
 
@@ -19,8 +19,8 @@ export class DefaultService {
      * @returns UserOutToken Successful Response
      * @throws ApiError
      */
-    public static registerUserUserCreatePost(
-        requestBody: UserCreate,
+    public static registerUserUserNewPost(
+        requestBody: UserNew,
     ): CancelablePromise<UserOutToken> {
         return __request(OpenAPI, {
             method: 'POST',

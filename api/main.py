@@ -32,10 +32,10 @@ from starlette.types import ASGIApp
 
 from auth import create_access_token, verify_password
 from config import HOST, PORT
-from crud import create_new_user, get_current_user, user_from_email
+from crud import new_user, get_curuser
 from db import get_db
-from dependencies import get_current_user, get_tokenlogin_user
-from schemas import Token, TokenLogin, UserCreate, UserDB, UserOut, UserOutToken
+from dependencies import user_from_email, get_curuser, get_tokenlogin_user
+from schemas import Token, TokenLogin, UserNew, UserDB, UserOut, UserOutToken
 
 
 # Content Security Policy Middleware
@@ -88,7 +88,7 @@ async def get_openapi_schema():
 
 app.include_router(router)
 
-from api.routers import urouter, prouter
+from routers import urouter, prouter
 
 for rter in (urouter, prouter):
     app.include_router(rter)

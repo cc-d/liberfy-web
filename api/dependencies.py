@@ -2,18 +2,39 @@
 import jwt
 from typing import Union, Optional
 from jwt import PyJWTError
+from logfunc import logf
 from fastapi import Depends, HTTPException, Request
 from sqlalchemy import select
 from config import JWT_ALGORITHM, JWT_SECRET, JWT_EXPIRE_SECS
 from db import AsyncSession, get_db, async_add_com_ref
 from fastapi.security import OAuth2PasswordRequestForm
-from models import User
-from schemas import UserDB, UserCreate, Token, TokenLogin, UserOutToken
+from models import User, Project, SyncDir, DirFile
+from schemas import (
+    UserDB,
+    UserNew,
+    Token,
+    TokenLogin,
+    UserOutToken,
+    UserOut,
+    ProjectNew,
+    ProjectDB,
+    ProjectOut,
+    SyncDirDB,
+    DirFileDB,
+)
 from auth import get_password_hash, oauth2_scheme, verify_password
-from crud import user_from_email
 
 
-async def get_current_user(
+@logf()
+async def user_from_email(
+    email: str, db: AsyncSession = Depends(get_db)
+) -> User | None:
+    result = await db.execute(select(User).where(User.email == email))
+    return result.scalars().one_or_none()
+
+
+@logf()
+async def get_curuser(
     token: str = Depends(oauth2_scheme), db: AsyncSession = Depends(get_db)
 ) -> UserDB:
     try:
@@ -39,9 +60,15 @@ async def get_current_user(
             detail="Invalid auth credentials no user",
             headers={"WWW-Authenticate": "Bearer"},
         )
-    return UserDB(**user.__dict__)
+    return user
 
 
+@logf()
+async def get_curuser_id(curuser: UserDB = Depends(get_curuser)) -> str:
+    return curuser.id
+
+
+@logf()
 async def get_login_data(
     request: Request, db: AsyncSession = Depends(get_db)
 ) -> Union[TokenLogin, OAuth2PasswordRequestForm]:
@@ -54,6 +81,7 @@ async def get_login_data(
         return OAuth2PasswordRequestForm(**form)
 
 
+@logf()
 async def get_tokenlogin_user(
     data: Union[TokenLogin, OAuth2PasswordRequestForm] = Depends(
         get_login_data
@@ -75,4 +103,30 @@ async def get_tokenlogin_user(
             detail="Invalid auth credentials password mismatch",
             headers={"WWW-Authenticate": "Bearer"},
         )
-    return UserDB(**user.__dict__)
+    return user
+
+
+@logf()
+async def get_user_projs(
+    user_id: str = Depends(get_curuser_id), db: AsyncSession = Depends(get_db)
+) -> list[Project]:
+    projects = await db.execute(
+        select(Project).where(Project.user_id == user_id)
+    )
+    projects = projects.scalars().all()
+    return projects
+
+
+@logf()
+async def get_proj_from_id(
+    project_id: str,
+    user_id: str = Depends(get_curuser_id),
+    db: AsyncSession = Depends(get_db),
+) -> Project:
+    project = await db.execute(select(Project).where(Project.id == project_id))
+    project = project.scalars().one_or_none()
+    if project is None:
+        raise HTTPException(status_code=404, detail="Project not found")
+    elif project.user_id != user_id:
+        raise HTTPException(status_code=401, detail="Not authorized")
+    return project
