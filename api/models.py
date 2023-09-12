@@ -20,7 +20,7 @@ class User(Base):
     id: Mapped[str] = mapped_column(
         String,
         primary_key=True,
-        default=str(uuid.uuid4),
+        default=lambda: str(uuid.uuid4()),
         unique=True,
         nullable=False,
     )
@@ -42,7 +42,7 @@ class Project(Base):
     id: Mapped[str] = mapped_column(
         String,
         primary_key=True,
-        default=str(uuid.uuid4),
+        default=lambda: str(uuid.uuid4()),
         unique=True,
         nullable=False,
     )
@@ -64,7 +64,7 @@ class SyncDir(Base):
     id: Mapped[str] = mapped_column(
         String,
         primary_key=True,
-        default=str(uuid.uuid4),
+        default=lambda: str(uuid.uuid4()),
         unique=True,
         nullable=False,
     )
@@ -90,7 +90,7 @@ class DirFile(Base):
     id: Mapped[str] = mapped_column(
         String,
         primary_key=True,
-        default=str(uuid.uuid4),
+        default=lambda: str(uuid.uuid4()),
         unique=True,
         nullable=False,
     )

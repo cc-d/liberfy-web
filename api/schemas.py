@@ -1,16 +1,28 @@
-from config import DEFAULTS as DEFS
 from pydantic import BaseModel, Field
+from typing import Optional
+from datetime import datetime
+from enum import Enum
+from config import DEFAULTS as DEFS
+
+
+# Enum Definitions
+class TokenType(str, Enum):
+    bearer = "bearer"
+
+
+class ChecksumType(str, Enum):
+    md5 = "md5"
 
 
 # Token
 class Token(BaseModel):
     access_token: str
-    token_type: str = 'bearer'
+    token_type: TokenType = TokenType.bearer
 
 
 class TokenLogin(BaseModel):
     username: str
-    password: str
+    password: str = Field(..., min_length=8)
     grant_type: str = 'password'
     scope: str = ''
     client_id: str = ''
@@ -48,7 +60,7 @@ class ProjectBase(BaseModel):
 
 
 class ProjectNew(ProjectBase):
-    name: str = DEFS.PROJECT_NAME
+    name: str
 
 
 class ProjectOut(ProjectNew):
@@ -75,13 +87,14 @@ class SyncDirCreate(SyncDirBase):
 
 class DirFileBase(BaseModel):
     relpath: str
-    content: str | None
+    content: Optional[str]
+    last_updated: datetime = datetime.now()
 
 
 class DirFileCreate(DirFileBase):
     syncdir_id: str
     checksum: str
-    checksum_type: str = 'md5'
+    checksum_type: ChecksumType
 
 
 class DirFileOut(DirFileCreate):
@@ -90,8 +103,8 @@ class DirFileOut(DirFileCreate):
 
 class SyncDirOut(SyncDirCreate):
     id: str
-    dirfiles: list[DirFileOut]
     user_id: str
+    dirfiles: list[DirFileOut] = []
 
 
 class SyncDirDB(SyncDirOut):

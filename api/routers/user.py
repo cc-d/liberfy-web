@@ -1,29 +1,29 @@
-from fastapi import APIRouter, HTTPException, Depends
-
 from auth import create_access_token
 from crud import new_user
-from dependencies import user_from_email, get_curuser, get_tokenlogin_user
-from db import get_db, AsyncSession
+from db import AsyncSession, get_db
+from dependencies import get_curuser, get_tokenlogin_user, user_from_email
+from fastapi import APIRouter, Depends, HTTPException
+from models import User
 from schemas import (
-    UserDB,
-    UserNew,
-    Token,
-    TokenLogin,
-    UserOutToken,
-    UserOut,
     ProjectBase,
+    ProjectDB,
     ProjectNew,
     ProjectOut,
-    ProjectDB,
+    Token,
+    TokenLogin,
+    UserDB,
+    UserNew,
+    UserOut,
+    UserOutToken,
 )
-from models import User
 
 urouter = APIRouter(prefix='/u', tags=['user'])
 
 
 @urouter.post("/new", response_model=UserOutToken)
-async def create_user(data: UserNew, db: AsyncSession = Depends(get_db)):
-    email, password = data.email, data.password
+async def create(*args, db: AsyncSession = Depends(get_db), **kwargs):
+    email, password = kwargs.get('username'), kwargs.get('password')
+
     print(f'email: {email}')
     print(f'password: {password}')
 
