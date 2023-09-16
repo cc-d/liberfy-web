@@ -88,7 +88,7 @@ class SyncDirCreate(SyncDirBase):
 class DirFileBase(BaseModel):
     relpath: str
     content: Optional[str]
-    last_updated: datetime = datetime.now()
+    last_updated: datetime = datetime.now
 
 
 class DirFileCreate(DirFileBase):

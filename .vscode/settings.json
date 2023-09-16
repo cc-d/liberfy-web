@@ -4,4 +4,7 @@
     ],
     "python.defaultInterpreterPath": "./api/venv/bin/python",
     "git.ignoreLimitWarning": true,
+    "workbench.colorCustomizations": {
+        "sideBarSectionHeader.background": "#00910734",
+    }
 }
