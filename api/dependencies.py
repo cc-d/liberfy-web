@@ -5,26 +5,10 @@ from logfunc import logf
 from fastapi import Depends, HTTPException, Request
 from sqlalchemy import select
 from config import JWT_ALGORITHM, JWT_SECRET, JWT_EXPIRE_SECS
-from db import AsyncSession, get_db, async_add_com_ref
+from db import AsyncSession, get_db
 from fastapi.security import OAuth2PasswordRequestForm
-from models import User, Project, SyncDir, DirFile
-from schemas import (
-    UserDB,
-    UserNew,
-    Token,
-    TokenLogin,
-    UserOutToken,
-    UserOut,
-    ProjectNew,
-    ProjectDB,
-    ProjectOut,
-    SyncDirDB,
-    DirFileDB,
-    SyncDirBase,
-    SyncDirCreate,
-    DirFileBase,
-    SyncDirOut,
-)
+from models import User, Project, SyncDir
+from schemas import UserDB, TokenLogin
 from auth import get_password_hash, oauth2_scheme, verify_password
 
 
