@@ -4,18 +4,7 @@ from db import AsyncSession, get_db
 from dependencies import get_curuser, get_tokenlogin_user, user_from_email
 from fastapi import APIRouter, Depends, HTTPException
 from models import User
-from schemas import (
-    ProjectBase,
-    ProjectDB,
-    ProjectNew,
-    ProjectOut,
-    Token,
-    TokenLogin,
-    UserDB,
-    UserNew,
-    UserOut,
-    UserOutToken,
-)
+from schemas import Token, UserDB, UserOut, UserOutToken
 
 urouter = APIRouter(prefix='/u', tags=['user'])
 
